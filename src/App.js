@@ -1,23 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Home from "./Pages/user/Home";
+import Login from "./Pages/user/Loign";
+import signup from "./Pages/user/Signup";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import UserProfile from "./Pages/user/UserProfile";
+import adminLogin from './Pages/admin/login'
+import AdminHome from './Pages/admin/Home'
+import Update from "./Pages/admin/Update";
+import { useSelector } from "react-redux";
 
 function App() {
+  const user = useSelector((store)=> store.user.userToken)
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <Routes>
+          <Route Component={signup} path="/signUp" />
+          <Route Component={Home} path="/home" />
+          <Route Component={Login} path="/login" />
+          <Route Component={UserProfile}  path="/profile"/>
+          <Route Component={adminLogin} path="/admin/login" />
+          <Route Component={AdminHome} path="/admin/home" />
+          <Route Component={Update} path="/admin/userUpdate" />
+        </Routes>
+      </Router>
     </div>
   );
 }
