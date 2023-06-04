@@ -2,33 +2,42 @@ import React,{useState,useEffect} from "react";
 import Table from "react-bootstrap/Table";
 import Update from '../../../assets/updateIcon'
 import Delete from '../../../assets/Delete'
-import axios from '../../../axios'
+import api from '../../../adminAxios'
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { DeleteUser, UsersList } from "../../../redux/AdminHome";
+import 'react-bootstrap'
 
-function AdminTable(props) {
+
+function AdminTable() {
+  const {usersList} = useSelector(state=>state.admin)
+  const disPatch = useDispatch()
   const navigate = useNavigate()
-  const [deleteState,setDeleteUser] = useState(false)
-  const [users,setUsers] = useState([])
+  
     const update=(id)=>{
        navigate('/admin/userUpdate',{state:{id}})
       
     }
     const deleteUser = (id)=>{
-     axios.post('/admin/delete',{id}).then(response=>{
-      if(response.data.status){
-        if(!deleteState)  setDeleteUser(true)
-        else setDeleteUser(false)
+     api.post('/delete',{id}).then(response=>{
+      if(response.status === 200){
+        // console.log(response.data.user);
+        const userId = response.data.user._id
+        
+       disPatch(DeleteUser(userId))
       }
      })
     }
     useEffect(()=>{
-      axios.get('/admin/home').then((users)=>{
-        setUsers(users.data.users);
-       }).catch((error)=>{console.log(error.messafe);})
-    },[deleteState])
+      api.get('/home').then((usersData)=>{
+        const users = usersData.data.users
+        console.log("user daa"+users);
+        disPatch(UsersList([...users]));
+       }).catch((error)=>{console.log(error.message);})
+    },[])
   return (
     <div>
-      <Table striped bordered hover>
+      <Table bg='primary' striped bordered hover>
         <thead>
           <tr>
             <th>#</th>
@@ -40,8 +49,8 @@ function AdminTable(props) {
           </tr>
         </thead>
         <tbody>
-          {users
-            ? users.map((user, index) => {
+          {usersList
+            ? usersList.map((user, index) => {
                 return (
                   <tr key={index}>
                     <td>{index+1}</td>

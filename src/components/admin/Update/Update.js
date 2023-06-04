@@ -3,36 +3,38 @@ import './Update.css'
 import { useLocation } from 'react-router-dom'
 import axios from '../../../axios'
 import { useNavigate } from 'react-router-dom'
+import { useSelector,useDispatch } from 'react-redux'
+import { updateUser} from '../../../redux/AdminHome'
 
 function Update() {
+    const dispatch = useDispatch()
     const navigate = useNavigate()
     const location = useLocation()
-    const {state}= location
+    const {state}= location//state.id
+    const {usersList} = useSelector(store=> store.admin)
     
     
     const [email,setEmail] = useState('')
     const [name,setName] = useState('')
     const [phoneNumber,setPhoneNumber] = useState('')
-    const [id,setId] = useState('')
+    
     const handleSubmit = (e)=>{
         e.preventDefault()
-        axios.post('/admin/userUpdate',{email,name,phoneNumber,id}).then((response)=>{
-            if(response.data.status) navigate('/admin/home')
+        axios.post('/admin/userUpdate',{email,name,phoneNumber,id:state.id}).then((response)=>{
+            if(response.data.status){
+                dispatch(updateUser({userId:state.id,updatedUser:response.data.user}))
+                navigate('/admin/home')
+            } 
         })
 
     }
     useEffect(()=>{
-       
-        axios.get(`/admin/userUpdate?id=${state.id}`).then((response)=>{
-            if(response.status){
-                const {name,email,phoneNumber,_id} = response.data.user
-                setEmail(email)
-                setName(name)
-                setPhoneNumber(phoneNumber)
-                setId(_id)
-            }
-
-        })
+    
+        const userDetail = usersList.filter((user)=> user._id === state.id)
+        setEmail(userDetail[0].email)
+        setName(userDetail[0].name)
+        setPhoneNumber(userDetail[0].phoneNumber)
+        
     },[])
   return (
     <div className='updateFormWrapper'>
